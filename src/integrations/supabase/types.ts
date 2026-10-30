@@ -177,6 +177,7 @@ export type Database = {
           external_reference_number: string | null
           id: string
           institution_address: string | null
+          institution_id: string | null
           institution_name: string
           institution_registration_number: string | null
           institution_type: string | null
@@ -214,6 +215,7 @@ export type Database = {
           external_reference_number?: string | null
           id?: string
           institution_address?: string | null
+          institution_id?: string | null
           institution_name: string
           institution_registration_number?: string | null
           institution_type?: string | null
@@ -251,6 +253,7 @@ export type Database = {
           external_reference_number?: string | null
           id?: string
           institution_address?: string | null
+          institution_id?: string | null
           institution_name?: string
           institution_registration_number?: string | null
           institution_type?: string | null
@@ -278,6 +281,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_institution_id_fkey"
+            columns: ["institution_id"]
+            isOneToOne: false
+            referencedRelation: "institutions"
             referencedColumns: ["id"]
           },
           {
