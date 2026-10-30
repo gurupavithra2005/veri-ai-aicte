@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS public.__schema_probe (id int);
