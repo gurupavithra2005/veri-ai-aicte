@@ -37,6 +37,21 @@ export const AICTE_APPLICATION_CATEGORIES: AicteCategory[] = [
 
 export const FUNDING_TYPES = ["Government", "Government-aided", "Self-financing"] as const;
 
+/** Maps a stored application_category label (or legacy label) to its category code. */
+export function categoryCodeFromLabel(label: string | null | undefined): string {
+  if (!label) return "";
+  const exact = AICTE_APPLICATION_CATEGORIES.find((c) => c.label === label);
+  if (exact) return exact.value;
+  const legacyAliases: Record<string, string> = {
+    "Approval / Extension of Approval": "eoa",
+    "Intake Variation": "increase_intake",
+    "New Campus Proposal": "change_site",
+    "Course Accreditation": "other",
+    "Institution Recognition": "other",
+  };
+  return legacyAliases[label] ?? "other";
+}
+
 const APH_VERSION = "2024-2027";
 
 /** Annexure-2, Clause 2.1 — Extension of Approval on self-disclosure. */
