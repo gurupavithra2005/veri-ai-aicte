@@ -652,9 +652,9 @@ export async function executeVerificationRun(opts: {
         if (!distinct.has(norm)) distinct.set(norm, entry);
       }
       if (distinct.size > 1) {
-        const first = perDoc[0];
+        const first = perDoc[0]!;
         const others = perDoc.slice(1);
-        const evidence = evidenceOf(first.doc, key) ?? evidenceOf(others[0].doc, key);
+        const evidence = evidenceOf(first.doc, key) ?? (others[0] ? evidenceOf(others[0].doc, key) : null);
         crossFindings.push(
           finding({
             rule_code: "CHK_CROSS_DOC",
@@ -836,7 +836,7 @@ export async function executeVerificationRun(opts: {
           fieldOf(doc, "institution_registration_number") ??
           fieldOf(doc, "application_reference_number");
         if (!lookupValue) continue;
-        const source = sources[0];
+        const source = sources[0]!;
         const outcome = await performAuthorizedLookup(
           source,
           "registration_or_reference_number",
