@@ -58,10 +58,16 @@ export async function notifyRoles(
 ) {
   if (roles.length === 0) return;
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const dbRoles = roles.filter((r): r is Database["public"]["Enums"]["app_role"] =>
+    (["institution_user", "reviewer", "admin", "regional_officer", "evc_coordinator", "competent_authority"] as const).includes(
+      r as Database["public"]["Enums"]["app_role"],
+    ),
+  );
+  if (dbRoles.length === 0) return;
   const { data } = await supabaseAdmin
     .from("user_roles")
     .select("user_id")
-    .in("role", roles);
+    .in("role", dbRoles);
   const ids = [...new Set((data ?? []).map((r) => r.user_id))];
   await notifyUsers(ids, payload);
 }

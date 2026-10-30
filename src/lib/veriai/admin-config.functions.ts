@@ -147,20 +147,21 @@ export const updateInstitution = createServerFn({ method: "POST" })
             contact_number: z.string().nullable().optional(),
             account_status: z.string().optional(),
           })
-          .parse,
+          .optional(),
       })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
     await assertOfficial(context);
+    const patch = data["patch"] ?? {};
     const clean = Object.fromEntries(
-      Object.entries(data.patch).filter(([, v]) => v !== undefined),
+      Object.entries(patch).filter(([, v]) => v !== undefined),
     );
     if (Object.keys(clean).length === 0) return { ok: true as const };
     const { error } = await context.supabase
       .from("institutions")
       .update(clean as never)
-      .eq("id", data.institutionId);
+      .eq("id", data["institutionId"]);
     if (error) throw new Error("Could not update the institution: " + error.message);
     await logAuditEvent({
       actorId: context.userId,
