@@ -265,7 +265,7 @@ export async function executeVerificationRun(opts: {
       executed_by: userId,
       rules_version: RULE_SET_VERSION,
       rules_snapshot: {
-        requirements: reqs,
+        requirements: reqs as unknown as Database["public"]["CompositeTypes"]["Json"],
         checks: CHECK_CODES,
         applicationCategory: application.application_category,
         ruleSetType: "administrator-configured prototype rules (not official regulatory rules)",
