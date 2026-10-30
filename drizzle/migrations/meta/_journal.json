@@ -1,5 +1,48 @@
 {
   "version": "7",
   "dialect": "postgresql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1792576640126,
+      "tag": "0000_create_profiles_and_roles",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792576670490,
+      "tag": "0001_create_applications_and_status",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792576692029,
+      "tag": "0002_create_documents_verification_tables",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792576711881,
+      "tag": "0003_storage_policies_application_documents",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792664385730,
+      "tag": "0004_allow_trusted_backend_status_updates",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793325936076,
+      "tag": "0005_migration",
+      "breakpoints": true
+    }
+  ]
 }
