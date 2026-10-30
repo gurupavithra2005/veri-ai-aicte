@@ -14,6 +14,76 @@ export type Database = {
   }
   public: {
     Tables: {
+      application_stage_history: {
+        Row: {
+          action_remarks: string | null
+          application_id: string
+          assigned_to: string | null
+          completed_at: string | null
+          completed_by: string | null
+          due_at: string | null
+          entered_at: string
+          exited_at: string | null
+          id: string
+          stage_code: string
+          stage_name: string
+          stage_order: number
+          status: string
+        }
+        Insert: {
+          action_remarks?: string | null
+          application_id: string
+          assigned_to?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          due_at?: string | null
+          entered_at?: string
+          exited_at?: string | null
+          id?: string
+          stage_code: string
+          stage_name: string
+          stage_order: number
+          status?: string
+        }
+        Update: {
+          action_remarks?: string | null
+          application_id?: string
+          assigned_to?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          due_at?: string | null
+          entered_at?: string
+          exited_at?: string | null
+          id?: string
+          stage_code?: string
+          stage_name?: string
+          stage_order?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_stage_history_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "application_stage_history_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "application_stage_history_completed_by_fkey"
+            columns: ["completed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       application_status_history: {
         Row: {
           application_id: string
@@ -59,19 +129,49 @@ export type Database = {
           },
         ]
       }
+      application_types: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       applications: {
         Row: {
           academic_year: string | null
           additional_notes: string | null
+          aicte_permanent_id: string | null
+          aph_version: string | null
           application_category: string | null
           application_number: string | null
           application_title: string
+          application_type: string | null
+          approval_state: string | null
+          assigned_bureau: string | null
           assigned_reviewer_id: string | null
           contact_email: string | null
           contact_person: string | null
           contact_phone: string | null
           created_at: string
           created_by: string
+          current_stage: string | null
           description: string | null
           district: string | null
           external_reference_number: string | null
@@ -80,23 +180,35 @@ export type Database = {
           institution_name: string
           institution_registration_number: string | null
           institution_type: string | null
+          processing_route: string | null
+          processing_year: string | null
+          region: string | null
+          stage_due_at: string | null
+          stage_entered_at: string | null
           state: string | null
           status: string
           submitted_at: string | null
           updated_at: string
+          workflow_template_id: string | null
         }
         Insert: {
           academic_year?: string | null
           additional_notes?: string | null
+          aicte_permanent_id?: string | null
+          aph_version?: string | null
           application_category?: string | null
           application_number?: string | null
           application_title: string
+          application_type?: string | null
+          approval_state?: string | null
+          assigned_bureau?: string | null
           assigned_reviewer_id?: string | null
           contact_email?: string | null
           contact_person?: string | null
           contact_phone?: string | null
           created_at?: string
           created_by: string
+          current_stage?: string | null
           description?: string | null
           district?: string | null
           external_reference_number?: string | null
@@ -105,23 +217,35 @@ export type Database = {
           institution_name: string
           institution_registration_number?: string | null
           institution_type?: string | null
+          processing_route?: string | null
+          processing_year?: string | null
+          region?: string | null
+          stage_due_at?: string | null
+          stage_entered_at?: string | null
           state?: string | null
           status?: string
           submitted_at?: string | null
           updated_at?: string
+          workflow_template_id?: string | null
         }
         Update: {
           academic_year?: string | null
           additional_notes?: string | null
+          aicte_permanent_id?: string | null
+          aph_version?: string | null
           application_category?: string | null
           application_number?: string | null
           application_title?: string
+          application_type?: string | null
+          approval_state?: string | null
+          assigned_bureau?: string | null
           assigned_reviewer_id?: string | null
           contact_email?: string | null
           contact_person?: string | null
           contact_phone?: string | null
           created_at?: string
           created_by?: string
+          current_stage?: string | null
           description?: string | null
           district?: string | null
           external_reference_number?: string | null
@@ -130,10 +254,16 @@ export type Database = {
           institution_name?: string
           institution_registration_number?: string | null
           institution_type?: string | null
+          processing_route?: string | null
+          processing_year?: string | null
+          region?: string | null
+          stage_due_at?: string | null
+          stage_entered_at?: string | null
           state?: string | null
           status?: string
           submitted_at?: string | null
           updated_at?: string
+          workflow_template_id?: string | null
         }
         Relationships: [
           {
@@ -148,6 +278,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_workflow_template_id_fkey"
+            columns: ["workflow_template_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_templates"
             referencedColumns: ["id"]
           },
         ]
@@ -205,33 +342,241 @@ export type Database = {
           },
         ]
       }
+      bureaus: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      clarification_requests: {
+        Row: {
+          application_id: string
+          created_at: string
+          id: string
+          reason: string
+          requested_by: string | null
+          required_correction: string | null
+          responded_at: string | null
+          responded_by: string | null
+          response_note: string | null
+          status: string
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          id?: string
+          reason: string
+          requested_by?: string | null
+          required_correction?: string | null
+          responded_at?: string | null
+          responded_by?: string | null
+          response_note?: string | null
+          status?: string
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          id?: string
+          reason?: string
+          requested_by?: string | null
+          required_correction?: string | null
+          responded_at?: string | null
+          responded_by?: string | null
+          response_note?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clarification_requests_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clarification_requests_requested_by_fkey"
+            columns: ["requested_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clarification_requests_responded_by_fkey"
+            columns: ["responded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      compliance_documents: {
+        Row: {
+          application_id: string | null
+          created_at: string
+          document_number: string | null
+          document_type: string
+          expiry_date: string | null
+          file_name: string | null
+          file_size: number | null
+          id: string
+          institution_id: string | null
+          issue_date: string | null
+          mime_type: string | null
+          parent_document_id: string | null
+          renewal_required: boolean
+          renewal_submitted_at: string | null
+          storage_path: string | null
+          updated_at: string
+          uploaded_by: string | null
+          validity_status: string
+          verification_remarks: string | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          application_id?: string | null
+          created_at?: string
+          document_number?: string | null
+          document_type: string
+          expiry_date?: string | null
+          file_name?: string | null
+          file_size?: number | null
+          id?: string
+          institution_id?: string | null
+          issue_date?: string | null
+          mime_type?: string | null
+          parent_document_id?: string | null
+          renewal_required?: boolean
+          renewal_submitted_at?: string | null
+          storage_path?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+          validity_status?: string
+          verification_remarks?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          application_id?: string | null
+          created_at?: string
+          document_number?: string | null
+          document_type?: string
+          expiry_date?: string | null
+          file_name?: string | null
+          file_size?: number | null
+          id?: string
+          institution_id?: string | null
+          issue_date?: string | null
+          mime_type?: string | null
+          parent_document_id?: string | null
+          renewal_required?: boolean
+          renewal_submitted_at?: string | null
+          storage_path?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+          validity_status?: string
+          verification_remarks?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compliance_documents_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compliance_documents_institution_id_fkey"
+            columns: ["institution_id"]
+            isOneToOne: false
+            referencedRelation: "institutions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compliance_documents_parent_document_id_fkey"
+            columns: ["parent_document_id"]
+            isOneToOne: false
+            referencedRelation: "compliance_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compliance_documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compliance_documents_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       document_requirements: {
         Row: {
           active: boolean
+          aph_version: string | null
+          applicable_application_type: string | null
+          applicable_institution_type: string | null
           created_at: string
           description: string | null
           document_category: string
+          expiry_date_required: boolean
           id: string
+          issue_date_required: boolean
           required: boolean
           requirement_name: string
           updated_at: string
         }
         Insert: {
           active?: boolean
+          aph_version?: string | null
+          applicable_application_type?: string | null
+          applicable_institution_type?: string | null
           created_at?: string
           description?: string | null
           document_category: string
+          expiry_date_required?: boolean
           id?: string
+          issue_date_required?: boolean
           required?: boolean
           requirement_name: string
           updated_at?: string
         }
         Update: {
           active?: boolean
+          aph_version?: string | null
+          applicable_application_type?: string | null
+          applicable_institution_type?: string | null
           created_at?: string
           description?: string | null
           document_category?: string
+          expiry_date_required?: boolean
           id?: string
+          issue_date_required?: boolean
           required?: boolean
           requirement_name?: string
           updated_at?: string
@@ -325,6 +670,127 @@ export type Database = {
           {
             foreignKeyName: "documents_uploaded_by_fkey"
             columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      escalation_records: {
+        Row: {
+          application_id: string | null
+          id: string
+          level: number
+          notes: string | null
+          reason: string
+          resolved_at: string | null
+          resolved_by: string | null
+          triggered_at: string
+          undertaking_id: string | null
+        }
+        Insert: {
+          application_id?: string | null
+          id?: string
+          level?: number
+          notes?: string | null
+          reason: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          triggered_at?: string
+          undertaking_id?: string | null
+        }
+        Update: {
+          application_id?: string | null
+          id?: string
+          level?: number
+          notes?: string | null
+          reason?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          triggered_at?: string
+          undertaking_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "escalation_records_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "escalation_records_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "escalation_records_undertaking_id_fkey"
+            columns: ["undertaking_id"]
+            isOneToOne: false
+            referencedRelation: "undertakings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      evc_records: {
+        Row: {
+          application_id: string
+          committee_members: Json
+          completed_date: string | null
+          coordinator_id: string | null
+          created_at: string
+          due_date: string | null
+          id: string
+          observations: string | null
+          requirement: string | null
+          scheduled_date: string | null
+          status: string
+          updated_at: string
+          visit_date: string | null
+        }
+        Insert: {
+          application_id: string
+          committee_members?: Json
+          completed_date?: string | null
+          coordinator_id?: string | null
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          observations?: string | null
+          requirement?: string | null
+          scheduled_date?: string | null
+          status?: string
+          updated_at?: string
+          visit_date?: string | null
+        }
+        Update: {
+          application_id?: string
+          committee_members?: Json
+          completed_date?: string | null
+          coordinator_id?: string | null
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          observations?: string | null
+          requirement?: string | null
+          scheduled_date?: string | null
+          status?: string
+          updated_at?: string
+          visit_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evc_records_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evc_records_coordinator_id_fkey"
+            columns: ["coordinator_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -473,6 +939,104 @@ export type Database = {
           },
         ]
       }
+      institution_users: {
+        Row: {
+          created_at: string
+          id: string
+          institution_id: string
+          role_at_institution: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          institution_id: string
+          role_at_institution?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          institution_id?: string
+          role_at_institution?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institution_users_institution_id_fkey"
+            columns: ["institution_id"]
+            isOneToOne: false
+            referencedRelation: "institutions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institution_users_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      institutions: {
+        Row: {
+          account_status: string
+          address: string | null
+          aicte_permanent_id: string | null
+          contact_number: string | null
+          created_at: string
+          created_by: string | null
+          district: string | null
+          id: string
+          institution_name: string
+          institution_type: string | null
+          official_email: string | null
+          region: string | null
+          state: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_status?: string
+          address?: string | null
+          aicte_permanent_id?: string | null
+          contact_number?: string | null
+          created_at?: string
+          created_by?: string | null
+          district?: string | null
+          id?: string
+          institution_name: string
+          institution_type?: string | null
+          official_email?: string | null
+          region?: string | null
+          state?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_status?: string
+          address?: string | null
+          aicte_permanent_id?: string | null
+          contact_number?: string | null
+          created_at?: string
+          created_by?: string | null
+          district?: string | null
+          id?: string
+          institution_name?: string
+          institution_type?: string | null
+          official_email?: string | null
+          region?: string | null
+          state?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institutions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           application_id: string | null
@@ -551,6 +1115,104 @@ export type Database = {
         }
         Relationships: []
       }
+      regions: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      regulatory_rules: {
+        Row: {
+          active: boolean
+          aph_version: string | null
+          applicable_application_type: string | null
+          applicable_institution_type: string | null
+          config_status: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          effective_from: string | null
+          effective_until: string | null
+          id: string
+          required_documents: string[]
+          required_stage: string | null
+          rule_name: string
+          source_document: string | null
+          source_section: string | null
+          timeline_days: number | null
+          updated_at: string
+          validation_requirement: string | null
+        }
+        Insert: {
+          active?: boolean
+          aph_version?: string | null
+          applicable_application_type?: string | null
+          applicable_institution_type?: string | null
+          config_status?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          effective_from?: string | null
+          effective_until?: string | null
+          id?: string
+          required_documents?: string[]
+          required_stage?: string | null
+          rule_name: string
+          source_document?: string | null
+          source_section?: string | null
+          timeline_days?: number | null
+          updated_at?: string
+          validation_requirement?: string | null
+        }
+        Update: {
+          active?: boolean
+          aph_version?: string | null
+          applicable_application_type?: string | null
+          applicable_institution_type?: string | null
+          config_status?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          effective_from?: string | null
+          effective_until?: string | null
+          id?: string
+          required_documents?: string[]
+          required_stage?: string | null
+          rule_name?: string
+          source_document?: string | null
+          source_section?: string | null
+          timeline_days?: number | null
+          updated_at?: string
+          validation_requirement?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "regulatory_rules_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       report_history: {
         Row: {
           application_id: string
@@ -626,6 +1288,247 @@ export type Database = {
           {
             foreignKeyName: "review_comments_author_id_fkey"
             columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sla_configurations: {
+        Row: {
+          active: boolean
+          alert_before_days: number[]
+          created_at: string
+          escalation_levels: number[]
+          id: string
+          name: string
+          scope: string
+          scope_value: string | null
+          timeline_days: number | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          alert_before_days?: number[]
+          created_at?: string
+          escalation_levels?: number[]
+          id?: string
+          name: string
+          scope?: string
+          scope_value?: string | null
+          timeline_days?: number | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          alert_before_days?: number[]
+          created_at?: string
+          escalation_levels?: number[]
+          id?: string
+          name?: string
+          scope?: string
+          scope_value?: string | null
+          timeline_days?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      stage_observations: {
+        Row: {
+          application_id: string
+          created_at: string
+          id: string
+          observation: string
+          officer_id: string | null
+          stage_history_id: string | null
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          id?: string
+          observation: string
+          officer_id?: string | null
+          stage_history_id?: string | null
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          id?: string
+          observation?: string
+          officer_id?: string | null
+          stage_history_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stage_observations_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stage_observations_officer_id_fkey"
+            columns: ["officer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stage_observations_stage_history_id_fkey"
+            columns: ["stage_history_id"]
+            isOneToOne: false
+            referencedRelation: "application_stage_history"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      undertaking_submissions: {
+        Row: {
+          evidence_file_name: string | null
+          evidence_storage_path: string | null
+          id: string
+          note: string | null
+          status: string
+          submitted_at: string
+          submitted_by: string
+          undertaking_id: string
+        }
+        Insert: {
+          evidence_file_name?: string | null
+          evidence_storage_path?: string | null
+          id?: string
+          note?: string | null
+          status?: string
+          submitted_at?: string
+          submitted_by: string
+          undertaking_id: string
+        }
+        Update: {
+          evidence_file_name?: string | null
+          evidence_storage_path?: string | null
+          id?: string
+          note?: string | null
+          status?: string
+          submitted_at?: string
+          submitted_by?: string
+          undertaking_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "undertaking_submissions_submitted_by_fkey"
+            columns: ["submitted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "undertaking_submissions_undertaking_id_fkey"
+            columns: ["undertaking_id"]
+            isOneToOne: false
+            referencedRelation: "undertakings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      undertakings: {
+        Row: {
+          application_id: string | null
+          assigned_officer_id: string | null
+          compliance_closed_at: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          institution_id: string | null
+          issued_date: string | null
+          prescribed_condition: string | null
+          required_evidence: string | null
+          rule_reference: string | null
+          status: string
+          title: string
+          updated_at: string
+          verification_remarks: string | null
+          verification_status: string | null
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          application_id?: string | null
+          assigned_officer_id?: string | null
+          compliance_closed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          institution_id?: string | null
+          issued_date?: string | null
+          prescribed_condition?: string | null
+          required_evidence?: string | null
+          rule_reference?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          verification_remarks?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          application_id?: string | null
+          assigned_officer_id?: string | null
+          compliance_closed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          institution_id?: string | null
+          issued_date?: string | null
+          prescribed_condition?: string | null
+          required_evidence?: string | null
+          rule_reference?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          verification_remarks?: string | null
+          verification_status?: string | null
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "undertakings_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "undertakings_assigned_officer_id_fkey"
+            columns: ["assigned_officer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "undertakings_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "undertakings_institution_id_fkey"
+            columns: ["institution_id"]
+            isOneToOne: false
+            referencedRelation: "institutions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "undertakings_verified_by_fkey"
+            columns: ["verified_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -858,6 +1761,106 @@ export type Database = {
           },
         ]
       }
+      workflow_stages: {
+        Row: {
+          allow_return: boolean
+          completion_conditions: string | null
+          entry_conditions: string | null
+          id: string
+          responsible_bureau: string | null
+          responsible_role: string
+          stage_code: string
+          stage_name: string
+          stage_order: number
+          template_id: string
+          timeline_days: number | null
+        }
+        Insert: {
+          allow_return?: boolean
+          completion_conditions?: string | null
+          entry_conditions?: string | null
+          id?: string
+          responsible_bureau?: string | null
+          responsible_role: string
+          stage_code: string
+          stage_name: string
+          stage_order: number
+          template_id: string
+          timeline_days?: number | null
+        }
+        Update: {
+          allow_return?: boolean
+          completion_conditions?: string | null
+          entry_conditions?: string | null
+          id?: string
+          responsible_bureau?: string | null
+          responsible_role?: string
+          stage_code?: string
+          stage_name?: string
+          stage_order?: number
+          template_id?: string
+          timeline_days?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_stages_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_templates: {
+        Row: {
+          active: boolean
+          aph_version: string | null
+          application_type: string | null
+          config_status: string
+          created_at: string
+          created_by: string | null
+          effective_from: string | null
+          id: string
+          institution_category: string | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          aph_version?: string | null
+          application_type?: string | null
+          config_status?: string
+          created_at?: string
+          created_by?: string | null
+          effective_from?: string | null
+          id?: string
+          institution_category?: string | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          aph_version?: string | null
+          application_type?: string | null
+          config_status?: string
+          created_at?: string
+          created_by?: string | null
+          effective_from?: string | null
+          id?: string
+          institution_category?: string | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_templates_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -870,10 +1873,17 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_official: { Args: { _user_id: string }; Returns: boolean }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "institution_user" | "reviewer" | "admin"
+      app_role:
+        | "institution_user"
+        | "reviewer"
+        | "admin"
+        | "regional_officer"
+        | "evc_coordinator"
+        | "competent_authority"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1001,7 +2011,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["institution_user", "reviewer", "admin"],
+      app_role: [
+        "institution_user",
+        "reviewer",
+        "admin",
+        "regional_officer",
+        "evc_coordinator",
+        "competent_authority",
+      ],
     },
   },
 } as const
