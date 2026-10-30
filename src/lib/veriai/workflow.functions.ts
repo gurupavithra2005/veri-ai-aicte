@@ -47,8 +47,10 @@ async function validateForSubmission(
       .eq("application_id", applicationId)
       .eq("is_current", true),
   ]);
-  const uploaded = new Set((docs ?? []).map((d) => d.document_category));
-  const missingDocuments = (reqs ?? [])
+  const uploaded = new Set(
+    ((docs ?? []) as { document_category: string }[]).map((d) => d.document_category),
+  );
+  const missingDocuments = ((reqs ?? []) as { document_category: string; requirement_name: string }[])
     .filter((r) => !uploaded.has(r.document_category))
     .map((r) => r.requirement_name);
   return { missingFields, missingDocuments };
