@@ -14,18 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      __schema_probe: {
-        Row: {
-          id: number | null
-        }
-        Insert: {
-          id?: number | null
-        }
-        Update: {
-          id?: number | null
-        }
-        Relationships: []
-      }
       application_status_history: {
         Row: {
           application_id: string
