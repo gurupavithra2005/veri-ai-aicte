@@ -21,7 +21,7 @@ function addDays(days: number): string {
 
 /** Server-side required field + document validation shared by both submission paths. */
 async function validateForSubmission(
-  supabase: Parameters<typeof requireSupabaseAuth> extends never ? never : any,
+  supabase: any,
   applicationId: string,
 ): Promise<{ missingFields: string[]; missingDocuments: string[] }> {
   const { data: app } = await supabase
