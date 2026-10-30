@@ -167,6 +167,7 @@ export type Database = {
           assigned_bureau: string | null
           assigned_reviewer_id: string | null
           building_completion_date: string | null
+          checklist_overrides: Json
           contact_email: string | null
           contact_person: string | null
           contact_phone: string | null
@@ -208,6 +209,7 @@ export type Database = {
           assigned_bureau?: string | null
           assigned_reviewer_id?: string | null
           building_completion_date?: string | null
+          checklist_overrides?: Json
           contact_email?: string | null
           contact_person?: string | null
           contact_phone?: string | null
@@ -249,6 +251,7 @@ export type Database = {
           assigned_bureau?: string | null
           assigned_reviewer_id?: string | null
           building_completion_date?: string | null
+          checklist_overrides?: Json
           contact_email?: string | null
           contact_person?: string | null
           contact_phone?: string | null
@@ -623,6 +626,7 @@ export type Database = {
           ocr_status: string
           pages_processed: number | null
           requirement_classification: string | null
+          review_remarks: string | null
           sha256_hash: string | null
           storage_path: string
           updated_at: string
@@ -651,6 +655,7 @@ export type Database = {
           ocr_status?: string
           pages_processed?: number | null
           requirement_classification?: string | null
+          review_remarks?: string | null
           sha256_hash?: string | null
           storage_path: string
           updated_at?: string
@@ -679,6 +684,7 @@ export type Database = {
           ocr_status?: string
           pages_processed?: number | null
           requirement_classification?: string | null
+          review_remarks?: string | null
           sha256_hash?: string | null
           storage_path?: string
           updated_at?: string
