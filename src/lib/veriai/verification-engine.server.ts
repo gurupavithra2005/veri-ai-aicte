@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Database } from "@/integrations/supabase/types";
+import type { Database, Json } from "@/integrations/supabase/types";
 import { CONFIG, REQUIRED_APPLICATION_FIELDS, RULE_SET_VERSION } from "@/lib/constants";
 import type { FindingCategory, Severity } from "@/lib/status";
 import { logAuditEvent } from "./audit.server";
@@ -265,7 +265,7 @@ export async function executeVerificationRun(opts: {
       executed_by: userId,
       rules_version: RULE_SET_VERSION,
       rules_snapshot: {
-        requirements: reqs as unknown as Database["public"]["CompositeTypes"]["Json"],
+        requirements: reqs as unknown as Json,
         checks: CHECK_CODES,
         applicationCategory: application.application_category,
         ruleSetType: "administrator-configured prototype rules (not official regulatory rules)",
