@@ -146,7 +146,7 @@ export const completeEvc = createServerFn({ method: "POST" })
     const supabase = context.supabase;
     const { data: evc } = await supabase
       .from("evc_records")
-      .select("id, status, application_id, applications(application_number, created_by, institution_name)")
+      .select("id, status, visit_date, application_id, applications(application_number, created_by, institution_name)")
       .eq("id", data.evcId)
       .single();
     if (!evc) throw new Error("EVC record not found.");

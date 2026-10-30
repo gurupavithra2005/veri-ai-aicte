@@ -545,6 +545,6 @@ export const getComplianceDocumentUrl = createServerFn({ method: "POST" })
     const { data: signed } = await context.supabase.storage
       .from("application-documents")
       .createSignedUrl(doc.storage_path, 300);
-    if (!signed) throw new Error("Could not create a download link.");
-    return { url: signed.url };
+    if (!signed?.signedUrl) throw new Error("Could not create a download link.");
+    return { url: signed.signedUrl };
   });
