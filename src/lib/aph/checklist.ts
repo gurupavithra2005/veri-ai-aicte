@@ -283,7 +283,7 @@ export interface ChecklistItem extends ChecklistItemDef {
   /** Human explanation of why the item does or does not apply here. */
   applicabilityExplanation: string;
   /** Signature guidance for the authorized signatory. */
-  authenticationNote?: string;
+  authenticationNote?: string | undefined;
 }
 
 export interface BuildChecklistInput {
