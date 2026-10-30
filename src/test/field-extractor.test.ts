@@ -82,19 +82,19 @@ describe("field extraction — pollution regression (P0)", () => {
   it("stored plain values match the extracted values exactly", () => {
     const fields = extractFields(JOINED_CERTIFICATE);
     const stored = toStoredFields(fields);
-    expect(stored.institution_name).toBe("ABC Engineering College (TEST INSTITUTION)");
-    expect(stored.institution_registration_number).toBe("TEST-2026-001");
+    expect(stored["institution_name"]).toBe("ABC Engineering College (TEST INSTITUTION)");
+    expect(stored["institution_registration_number"]).toBe("TEST-2026-001");
   });
 
   it("evidence records include value, passage, confidence and method", () => {
     const fields = extractFields(JOINED_CERTIFICATE, "pdf_text");
     const evidence = toStoredEvidence(fields, "pdf_text");
-    expect(evidence.institution_name).toMatchObject({
+    expect(evidence["institution_name"]).toMatchObject({
       value: "ABC Engineering College (TEST INSTITUTION)",
       method: "pdf_text",
     });
-    expect(evidence.institution_name?.confidence).toBeGreaterThan(0);
-    expect(typeof evidence.institution_name?.evidence).toBe("string");
+    expect(evidence["institution_name"]?.confidence).toBeGreaterThan(0);
+    expect(typeof evidence["institution_name"]?.evidence).toBe("string");
   });
 });
 
