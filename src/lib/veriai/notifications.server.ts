@@ -45,3 +45,23 @@ export async function notifyAdmins(payload: {
     payload,
   );
 }
+
+/** Notify every user holding one of the given workflow roles (e.g. the officer responsible for a stage). */
+export async function notifyRoles(
+  roles: string[],
+  payload: {
+    applicationId?: string | null;
+    title: string;
+    message: string;
+    notificationType?: string;
+  },
+) {
+  if (roles.length === 0) return;
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin
+    .from("user_roles")
+    .select("user_id")
+    .in("role", roles);
+  const ids = [...new Set((data ?? []).map((r) => r.user_id))];
+  await notifyUsers(ids, payload);
+}
