@@ -56,6 +56,15 @@ export const APPLICATION_STATUSES: AppStatus[] = [
   "rejected",
 ];
 
+export const INSTITUTION_TYPES = [
+  "University",
+  "Engineering College",
+  "Polytechnic",
+  "Management Institute",
+  "Pharmacy College",
+  "Other",
+];
+
 /** SIH26262 AICTE application categories (see src/lib/aph/checklist.ts). */
 export const APPLICATION_CATEGORIES = [
   "New Technical Institution – Approval",
