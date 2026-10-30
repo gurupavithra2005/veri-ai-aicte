@@ -1,16 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { createApplication } from "@/lib/veriai/applications.functions";
-import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/app/app-shell";
-import { LoadingState, ErrorState } from "@/components/app/states";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -18,11 +15,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ACADEMIC_YEARS, APPLICATION_CATEGORIES, INSTITUTION_TYPES } from "@/lib/constants";
+import {
+  ACADEMIC_YEARS,
+  APPLICATION_CATEGORIES,
+  FUNDING_TYPES,
+  INSTITUTION_TYPES,
+} from "@/lib/constants";
+import {
+  buildChecklist,
+  categoryCodeFromLabel,
+  buildingAgeYears,
+  CHECKLIST_STATUS_LABELS,
+  type ChecklistApplicability,
+} from "@/lib/aph/checklist";
 
 export const Route = createFileRoute("/_authenticated/applications/new")({
   head: () => ({
-    meta: [{ title: "New Application — VeriAI" }],
+    meta: [{ title: "New AICTE Approval Application — VeriAI" }],
   }),
   component: NewApplicationPage,
 });
@@ -30,6 +39,8 @@ export const Route = createFileRoute("/_authenticated/applications/new")({
 interface FormState {
   institution_name: string;
   institution_type: string;
+  funding_type: string;
+  aicte_permanent_id: string;
   institution_address: string;
   state: string;
   district: string;
@@ -41,6 +52,8 @@ interface FormState {
   external_reference_number: string;
   academic_year: string;
   application_category: string;
+  building_completion_date: string;
+  programme_details: string;
   description: string;
   additional_notes: string;
 }
@@ -48,6 +61,8 @@ interface FormState {
 const EMPTY: FormState = {
   institution_name: "",
   institution_type: "",
+  funding_type: "",
+  aicte_permanent_id: "",
   institution_address: "",
   state: "",
   district: "",
@@ -59,23 +74,43 @@ const EMPTY: FormState = {
   external_reference_number: "",
   academic_year: "",
   application_category: "",
+  building_completion_date: "",
+  programme_details: "",
   description: "",
   additional_notes: "",
 };
 
-const STEPS = ["Institution Information", "Application Information", "Document Checklist", "Review & Submit"];
+/** Categories where the building's Completion Certificate date drives APH conditions. */
+const EXISTING_INSTITUTION_CATEGORIES = APPLICATION_CATEGORIES.filter(
+  (c) => c !== "New Technical Institution – Approval",
+);
+
+const STEPS = [
+  "Institution Information",
+  "Application & Category",
+  "AICTE Approval Document Checklist",
+  "Review & Submit",
+];
+
+const APPLICABILITY_LABELS: Record<ChecklistApplicability, string> = {
+  mandatory: "Required",
+  conditional: "Conditional",
+  optional: "Optional",
+};
 
 function Field({
   id,
   label,
   required,
   error,
+  hint,
   children,
 }: {
   id: string;
   label: string;
   required?: boolean | undefined;
   error?: string | undefined;
+  hint?: string | undefined;
   children: React.ReactNode;
 }) {
   return (
@@ -85,6 +120,7 @@ function Field({
         {required && <span className="text-destructive"> *</span>}
       </Label>
       {children}
+      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
       {error && <p className="text-xs text-destructive">{error}</p>}
     </div>
   );
@@ -98,33 +134,25 @@ function NewApplicationPage() {
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [saving, setSaving] = useState(false);
 
-  const {
-    data: requirements,
-    isPending,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: ["document-requirements"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("document_requirements")
-        .select("*")
-        .eq("active", true)
-        .order("requirement_name");
-      if (error) throw new Error(error.message);
-      return data;
-    },
+  const categoryCode = categoryCodeFromLabel(form.application_category);
+  const checklist = buildChecklist({
+    applicationCategory: categoryCode,
+    fundingType: form.funding_type,
+    buildingCompletionDate: form.building_completion_date || null,
   });
+  const applicableCount = checklist.filter((i) => i.applicable).length;
+  const buildingAge = buildingAgeYears(form.building_completion_date || null);
 
   function set(key: keyof FormState, value: string) {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
-  function validateStep1(): boolean {
+  function validateStep0(): boolean {
     const e: Partial<Record<keyof FormState, string>> = {};
     for (const key of [
       "institution_name",
       "institution_type",
+      "funding_type",
       "institution_address",
       "state",
       "district",
@@ -141,11 +169,11 @@ function NewApplicationPage() {
     return Object.keys(e).length === 0;
   }
 
-  function validateStep2(): boolean {
+  function validateStep1(): boolean {
     const e: Partial<Record<keyof FormState, string>> = {};
     if (form.application_title.trim() === "") e.application_title = "Application title is required.";
     if (form.academic_year === "") e.academic_year = "Select the academic year.";
-    if (form.application_category === "") e.application_category = "Select a category.";
+    if (form.application_category === "") e.application_category = "Select the AICTE application category.";
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -157,6 +185,8 @@ function NewApplicationPage() {
         data: {
           institution_name: form.institution_name,
           institution_type: form.institution_type,
+          funding_type: form.funding_type || null,
+          aicte_permanent_id: form.aicte_permanent_id || null,
           institution_address: form.institution_address,
           state: form.state,
           district: form.district,
@@ -168,6 +198,8 @@ function NewApplicationPage() {
           external_reference_number: form.external_reference_number || null,
           academic_year: form.academic_year,
           application_category: form.application_category,
+          building_completion_date: form.building_completion_date || null,
+          programme_details: form.programme_details || null,
           description: form.description || null,
           additional_notes: form.additional_notes || null,
         },
@@ -183,14 +215,11 @@ function NewApplicationPage() {
     }
   }
 
-  if (isPending) return <LoadingState label="Loading document requirements…" />;
-  if (isError) return <ErrorState message={(error as Error).message} retry={() => void 0} />;
-
   return (
     <div>
       <PageHeader
-        title="New Application"
-        description="Complete each step. You can save as a draft at any time from step 4."
+        title="New AICTE Approval Application"
+        description="Complete each step. The document checklist is generated from the selected approval category and applicable APH rules."
       />
 
       {/* Stepper */}
@@ -235,6 +264,37 @@ function NewApplicationPage() {
                   ))}
                 </SelectContent>
               </Select>
+            </Field>
+            <Field
+              id="na-funding"
+              label="Funding Classification"
+              required
+              error={errors.funding_type}
+              hint="Government / Government-aided / Self-financing — determines the authorized signatory and some APH applicability."
+            >
+              <Select value={form.funding_type} onValueChange={(v) => set("funding_type", v)}>
+                <SelectTrigger id="na-funding">
+                  <SelectValue placeholder="Select funding classification" />
+                </SelectTrigger>
+                <SelectContent>
+                  {FUNDING_TYPES.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field
+              id="na-aid"
+              label="AICTE Permanent ID (if available)"
+              hint="Leave blank for new institutions that do not yet have one."
+            >
+              <Input
+                id="na-aid"
+                value={form.aicte_permanent_id}
+                onChange={(e) => set("aicte_permanent_id", e.target.value)}
+              />
             </Field>
             <div className="sm:col-span-2">
               <Field
@@ -286,7 +346,7 @@ function NewApplicationPage() {
             </Field>
             <Field
               id="na-reg"
-              label="Institution Registration Number (optional)"
+              label="Trust / Society / Company Registration Number (optional)"
               error={errors.institution_registration_number}
             >
               <Input
@@ -334,16 +394,17 @@ function NewApplicationPage() {
             </Field>
             <Field
               id="na-cat"
-              label="Application Category"
+              label="AICTE Application Category"
               required
               error={errors.application_category}
+              hint="The approval category determines which documents the checklist generates. The generic 'Approval / Extension of Approval' category has been separated into the correct application types."
             >
               <Select
                 value={form.application_category}
                 onValueChange={(v) => set("application_category", v)}
               >
                 <SelectTrigger id="na-cat">
-                  <SelectValue placeholder="Select category" />
+                  <SelectValue placeholder="Select the approval category" />
                 </SelectTrigger>
                 <SelectContent>
                   {APPLICATION_CATEGORIES.map((c) => (
@@ -354,6 +415,39 @@ function NewApplicationPage() {
                 </SelectContent>
               </Select>
             </Field>
+            {EXISTING_INSTITUTION_CATEGORIES.includes(form.application_category) && (
+              <Field
+                id="na-building"
+                label="Completion Certificate Issue Date (building)"
+                error={errors.building_completion_date}
+                hint={
+                  buildingAge === null
+                    ? "Used for the 30-year Structural Stability Certificate condition (APH Annexure-2, Clause 2.1)."
+                    : `Building age from Completion Certificate: ${buildingAge} year${buildingAge === 1 ? "" : "s"}.`
+                }
+              >
+                <Input
+                  id="na-building"
+                  type="date"
+                  value={form.building_completion_date}
+                  onChange={(e) => set("building_completion_date", e.target.value)}
+                />
+              </Field>
+            )}
+            <div className="sm:col-span-2">
+              <Field
+                id="na-programme"
+                label="Programme / Course Details"
+                hint="Required for course, intake and programme-related categories."
+              >
+                <Textarea
+                  id="na-programme"
+                  rows={2}
+                  value={form.programme_details}
+                  onChange={(e) => set("programme_details", e.target.value)}
+                />
+              </Field>
+            </div>
             <div className="sm:col-span-2">
               <Field id="na-desc" label="Description">
                 <Textarea
@@ -379,41 +473,75 @@ function NewApplicationPage() {
 
         {step === 2 && (
           <div>
-            <p className="mb-4 rounded-lg border border-teal/30 bg-teal-soft px-4 py-2.5 text-xs text-foreground">
-              These are configurable prototype document categories — not an official regulatory
-              checklist. Required categories must be uploaded before submission.
-            </p>
+            <div className="mb-4 rounded-lg border border-teal/30 bg-teal-soft px-4 py-3 text-xs text-foreground">
+              <p className="font-semibold">AICTE Approval Document Checklist</p>
+              <p className="mt-1">
+                Documents and compliance requirements applicable to this institution's AICTE approval
+                application, based on the selected approval category and applicable APH rules.
+              </p>
+              {form.application_category === "" ? (
+                <p className="mt-2 font-medium text-warning">
+                  Select the application category in step 2 to generate the applicable checklist.
+                </p>
+              ) : (
+                <p className="mt-2">
+                  {form.application_category} · {applicableCount} applicable item
+                  {applicableCount === 1 ? "" : "s"}
+                  {form.funding_type ? ` · ${form.funding_type} institution` : ""}
+                </p>
+              )}
+            </div>
             <ul className="space-y-2">
-              {(requirements ?? []).map((r) => (
+              {checklist.map((item) => (
                 <li
-                  key={r.id}
-                  className="flex items-start gap-3 rounded-lg border bg-background px-4 py-3"
+                  key={item.documentCategory}
+                  className={
+                    "rounded-lg border px-4 py-3 " +
+                    (item.applicable ? "bg-background" : "bg-muted/40 opacity-70")
+                  }
                 >
-                  <Checkbox checked={false} disabled aria-label={`${r.requirement_name} status`} />
-                  <div className="min-w-0">
+                  <div className="flex items-start justify-between gap-3">
                     <p className="text-sm font-medium text-foreground">
-                      {r.requirement_name}{" "}
+                      {item.name}
+                      {!item.applicable && (
+                        <span className="ml-2 rounded-full border border-border bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                          Not Applicable to this application
+                        </span>
+                      )}
+                    </p>
+                    {item.applicable && (
                       <span
                         className={
-                          "ml-2 rounded-full border px-2 py-0.5 text-[10px] font-semibold " +
-                          (r.required
+                          "shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold " +
+                          (item.applicability === "mandatory"
                             ? "border-destructive/40 bg-danger-soft text-destructive"
-                            : "border-border bg-muted text-muted-foreground")
+                            : item.applicability === "conditional"
+                              ? "border-warning/40 bg-warning-soft text-warning"
+                              : "border-border bg-muted text-muted-foreground")
                         }
                       >
-                        {r.required ? "Required" : "Optional"}
+                        {APPLICABILITY_LABELS[item.applicability]}
                       </span>
-                    </p>
-                    {r.description && (
-                      <p className="mt-0.5 text-xs text-muted-foreground">{r.description}</p>
                     )}
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      Not uploaded yet — upload after saving the draft.
-                    </p>
                   </div>
+                  {item.applicable && (
+                    <>
+                      <p className="mt-1 text-xs text-muted-foreground">{item.applicabilityExplanation}</p>
+                      {item.authenticationNote && (
+                        <p className="mt-1 text-xs text-foreground">{item.authenticationNote}</p>
+                      )}
+                    </>
+                  )}
+                  <p className="mt-1.5 text-[11px] italic text-muted-foreground">
+                    Source: {item.aphSource} · {CHECKLIST_STATUS_LABELS.not_uploaded}
+                  </p>
                 </li>
               ))}
             </ul>
+            <p className="mt-4 text-xs text-muted-foreground">
+              Upload the documents after saving the draft. Conditional items are only required when
+              their APH condition is met — the checklist explains each condition.
+            </p>
           </div>
         )}
 
@@ -423,6 +551,8 @@ function NewApplicationPage() {
               [
                 ["Institution Name", form.institution_name],
                 ["Institution Type", form.institution_type],
+                ["Funding Classification", form.funding_type],
+                ["AICTE Permanent ID", form.aicte_permanent_id || "—"],
                 ["Address", form.institution_address],
                 ["State", form.state],
                 ["District", form.district],
@@ -433,9 +563,12 @@ function NewApplicationPage() {
                 ["Application Title", form.application_title],
                 ["External Reference", form.external_reference_number || "—"],
                 ["Academic Year", form.academic_year],
-                ["Category", form.application_category],
+                ["AICTE Category", form.application_category],
+                ["Completion Certificate Date", form.building_completion_date || "—"],
+                ["Programme Details", form.programme_details || "—"],
                 ["Description", form.description || "—"],
                 ["Additional Notes", form.additional_notes || "—"],
+                ["Applicable Checklist Items", String(applicableCount)],
               ] as [string, string][]
             ).map(([k, v]) => (
               <div key={k} className="rounded-lg border bg-background px-3 py-2">
@@ -459,7 +592,7 @@ function NewApplicationPage() {
           {step < 3 && (
             <Button
               onClick={() => {
-                const ok = step === 0 ? validateStep1() : step === 1 ? validateStep2() : true;
+                const ok = step === 0 ? validateStep0() : step === 1 ? validateStep1() : true;
                 if (ok) setStep((s) => Math.min(3, s + 1));
               }}
             >

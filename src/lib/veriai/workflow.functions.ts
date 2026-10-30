@@ -47,8 +47,10 @@ async function validateForSubmission(
       .eq("application_id", applicationId)
       .eq("is_current", true),
   ]);
-  const uploaded = new Set((docs ?? []).map((d) => d.document_category));
-  const missingDocuments = (reqs ?? [])
+  const uploaded = new Set(
+    ((docs ?? []) as { document_category: string }[]).map((d) => d.document_category),
+  );
+  const missingDocuments = ((reqs ?? []) as { document_category: string; requirement_name: string }[])
     .filter((r) => !uploaded.has(r.document_category))
     .map((r) => r.requirement_name);
   return { missingFields, missingDocuments };
@@ -248,7 +250,7 @@ export const completeStage = createServerFn({ method: "POST" })
       .eq("id", data.applicationId)
       .single();
     if (!app) throw new Error("Application not found or not accessible.");
-    if (app.approval_state !== "in_progress" || !app.current_stage) {
+    if (!app.workflow_template_id || app.approval_state !== "in_progress" || !app.current_stage) {
       throw new Error("This application is not currently in an active processing stage.");
     }
 
@@ -260,7 +262,9 @@ export const completeStage = createServerFn({ method: "POST" })
     const current = stages?.find((s) => s.stage_code === app.current_stage);
     if (!current) throw new Error("Current stage is not configured on the processing route.");
 
-    await assertStageAuthority({ supabase, userId: context.userId }, current.responsible_role);
+    const responsibleRole = current.responsible_role ?? "";
+    if (!responsibleRole) throw new Error("The current stage has no responsible role configured.");
+    await assertStageAuthority({ supabase, userId: context.userId }, responsibleRole);
 
     const { data: activeHistory } = await supabase
       .from("application_stage_history")

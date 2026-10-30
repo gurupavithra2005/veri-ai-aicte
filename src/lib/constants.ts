@@ -65,14 +65,21 @@ export const INSTITUTION_TYPES = [
   "Other",
 ];
 
+/** SIH26262 AICTE application categories (see src/lib/aph/checklist.ts). */
 export const APPLICATION_CATEGORIES = [
-  "Approval / Extension of Approval",
-  "Course Accreditation",
-  "Institution Recognition",
-  "Intake Variation",
-  "New Campus Proposal",
-  "Other",
+  "New Technical Institution – Approval",
+  "Existing Institution – Extension of Approval (EoA)",
+  "EoA after Break / Restoration of Intake",
+  "Increase in Intake",
+  "Additional Course / New Programme / New Level",
+  "Change of Site / Location",
+  "Conversion of Institution Type",
+  "Merger of Institutions",
+  "Other AICTE approval categories",
 ];
+
+/** APH institution funding classifications. */
+export const FUNDING_TYPES = ["Government", "Government-aided", "Self-financing"];
 
 export const ACADEMIC_YEARS = [
   "2024-2025",

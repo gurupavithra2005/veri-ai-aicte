@@ -166,6 +166,8 @@ export type Database = {
           approval_state: string | null
           assigned_bureau: string | null
           assigned_reviewer_id: string | null
+          building_completion_date: string | null
+          checklist_overrides: Json
           contact_email: string | null
           contact_person: string | null
           contact_phone: string | null
@@ -175,6 +177,7 @@ export type Database = {
           description: string | null
           district: string | null
           external_reference_number: string | null
+          funding_type: string | null
           id: string
           institution_address: string | null
           institution_id: string | null
@@ -183,6 +186,7 @@ export type Database = {
           institution_type: string | null
           processing_route: string | null
           processing_year: string | null
+          programme_details: string | null
           region: string | null
           stage_due_at: string | null
           stage_entered_at: string | null
@@ -204,6 +208,8 @@ export type Database = {
           approval_state?: string | null
           assigned_bureau?: string | null
           assigned_reviewer_id?: string | null
+          building_completion_date?: string | null
+          checklist_overrides?: Json
           contact_email?: string | null
           contact_person?: string | null
           contact_phone?: string | null
@@ -213,6 +219,7 @@ export type Database = {
           description?: string | null
           district?: string | null
           external_reference_number?: string | null
+          funding_type?: string | null
           id?: string
           institution_address?: string | null
           institution_id?: string | null
@@ -221,6 +228,7 @@ export type Database = {
           institution_type?: string | null
           processing_route?: string | null
           processing_year?: string | null
+          programme_details?: string | null
           region?: string | null
           stage_due_at?: string | null
           stage_entered_at?: string | null
@@ -242,6 +250,8 @@ export type Database = {
           approval_state?: string | null
           assigned_bureau?: string | null
           assigned_reviewer_id?: string | null
+          building_completion_date?: string | null
+          checklist_overrides?: Json
           contact_email?: string | null
           contact_person?: string | null
           contact_phone?: string | null
@@ -251,6 +261,7 @@ export type Database = {
           description?: string | null
           district?: string | null
           external_reference_number?: string | null
+          funding_type?: string | null
           id?: string
           institution_address?: string | null
           institution_id?: string | null
@@ -259,6 +270,7 @@ export type Database = {
           institution_type?: string | null
           processing_route?: string | null
           processing_year?: string | null
+          programme_details?: string | null
           region?: string | null
           stage_due_at?: string | null
           stage_entered_at?: string | null
@@ -595,7 +607,9 @@ export type Database = {
       }
       documents: {
         Row: {
+          aph_clause_reference: string | null
           application_id: string
+          correction_reason: string | null
           document_category: string
           extracted_fields: Json | null
           extracted_text: string | null
@@ -611,6 +625,8 @@ export type Database = {
           mime_type: string
           ocr_status: string
           pages_processed: number | null
+          requirement_classification: string | null
+          review_remarks: string | null
           sha256_hash: string | null
           storage_path: string
           updated_at: string
@@ -620,7 +636,9 @@ export type Database = {
           version_number: number
         }
         Insert: {
+          aph_clause_reference?: string | null
           application_id: string
+          correction_reason?: string | null
           document_category: string
           extracted_fields?: Json | null
           extracted_text?: string | null
@@ -636,6 +654,8 @@ export type Database = {
           mime_type: string
           ocr_status?: string
           pages_processed?: number | null
+          requirement_classification?: string | null
+          review_remarks?: string | null
           sha256_hash?: string | null
           storage_path: string
           updated_at?: string
@@ -645,7 +665,9 @@ export type Database = {
           version_number?: number
         }
         Update: {
+          aph_clause_reference?: string | null
           application_id?: string
+          correction_reason?: string | null
           document_category?: string
           extracted_fields?: Json | null
           extracted_text?: string | null
@@ -661,6 +683,8 @@ export type Database = {
           mime_type?: string
           ocr_status?: string
           pages_processed?: number | null
+          requirement_classification?: string | null
+          review_remarks?: string | null
           sha256_hash?: string | null
           storage_path?: string
           updated_at?: string
