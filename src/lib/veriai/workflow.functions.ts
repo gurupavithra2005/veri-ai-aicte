@@ -262,7 +262,9 @@ export const completeStage = createServerFn({ method: "POST" })
     const current = stages?.find((s) => s.stage_code === app.current_stage);
     if (!current) throw new Error("Current stage is not configured on the processing route.");
 
-    await assertStageAuthority({ supabase, userId: context.userId }, current.responsible_role);
+    const responsibleRole = current.responsible_role ?? "";
+    if (!responsibleRole) throw new Error("The current stage has no responsible role configured.");
+    await assertStageAuthority({ supabase, userId: context.userId }, responsibleRole);
 
     const { data: activeHistory } = await supabase
       .from("application_stage_history")
