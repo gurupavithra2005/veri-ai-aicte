@@ -50,6 +50,13 @@
       "when": 1793350401965,
       "tag": "0006_probe_existing_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793353070555,
+      "tag": "0007_add_sih26262_roles",
+      "breakpoints": true
     }
   ]
 }
