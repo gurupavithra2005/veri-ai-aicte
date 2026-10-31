@@ -214,7 +214,19 @@ export const getAphChecklist = createServerFn({ method: "GET" })
       items: itemStates,
       summary: summarizeChecklist(itemStates),
       complianceRecords,
-      undertakings: undertakingsRes.data ?? [],
+      undertakings: ((undertakingsRes.data ?? []) as {
+        id: string;
+        title: string;
+        due_date: string | null;
+        status: string;
+        verification_status: string | null;
+      }[]).map((u) => ({
+        id: u.id,
+        title: u.title,
+        dueDate: u.due_date,
+        status: u.status,
+        verificationStatus: u.verification_status,
+      })),
       legacyUnmapped,
     };
   });
